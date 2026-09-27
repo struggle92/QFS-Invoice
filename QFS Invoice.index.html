@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quick Fix Studios — Quotes & Invoices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@600;800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDE6D3; --paper-dark:#E2D9C2; --ink:#23201A; --ink-soft:#5C5748;
+    --rust:#B5451F; --moss:#55694A; --slate:#2E3B3F; --line:#C9BFA1;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px); height:100%;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#20211E; --paper-dark:#2A2B27; --ink:#EDE6D3; --ink-soft:#B8B199;
+      --line:#3F3E36; --rust:#D9633B; --moss:#7C9268; --slate:#12181A;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#20211E; --paper-dark:#2A2B27; --ink:#EDE6D3; --ink-soft:#B8B199;
+    --line:#3F3E36; --rust:#D9633B; --moss:#7C9268; --slate:#12181A;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:'Work Sans',system-ui,sans-serif; line-height:1.5;}
+  h1,h2,.brand{font-family:'League Spartan',system-ui,sans-serif;}
+  .wrap{max-width:680px; margin:0 auto; padding:0 20px 60px;}
+  header.hero{background:var(--slate); color:#F3EEDF; padding:34px 20px 40px; padding-top:calc(34px + env(safe-area-inset-top,0px));}
+  header.hero .inner{max-width:680px; margin:0 auto;}
+  .brand{font-size:15px; color:var(--rust); font-weight:600; margin:0 0 6px;}
+  h1{font-size:32px; font-weight:800; margin:0 0 8px; line-height:1.1;}
+  .lede{color:#CFC8B4; max-width:48ch; margin:0; font-size:15px;}
+
+  .ticket{background:var(--paper-dark); border:1px solid var(--line); border-radius:2px; margin-top:-26px; padding:26px 22px; position:relative;}
+  .ticket::before{content:""; position:absolute; top:-1px; left:0; right:0; height:6px; background-image:repeating-linear-gradient(90deg, var(--paper) 0 8px, transparent 8px 16px);}
+  .ticket h2{font-size:12px; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin:0 0 18px; font-weight:600;}
+  label{display:block; font-size:13px; color:var(--ink-soft); margin:14px 0 5px;}
+  input,select{width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:3px; background:var(--paper); color:var(--ink); font:inherit; font-size:15px;}
+  .row{display:flex; gap:12px;}
+  .row > div{flex:1;}
+
+  table.items{width:100%; border-collapse:collapse; margin-top:16px;}
+  table.items th{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); text-align:left; padding:0 6px 6px; font-weight:600;}
+  table.items td{padding:4px 6px 4px 0;}
+  table.items input{padding:7px 8px; font-size:14px;}
+  table.items td.qty, table.items td.rate{width:70px;}
+  table.items td.rm{width:26px; text-align:center;}
+  .rm-btn{background:none; border:none; color:var(--rust); cursor:pointer; font-size:16px; line-height:1; padding:2px;}
+  .add-row{margin-top:10px; background:none; border:1px dashed var(--line); color:var(--ink-soft); border-radius:3px; padding:8px 12px; font:inherit; font-size:13px; cursor:pointer; width:100%;}
+
+  .totals{margin-top:16px; border-top:1px solid var(--line); padding-top:12px; font-size:14.5px;}
+  .totals .line{display:flex; justify-content:space-between; padding:3px 0;}
+  .totals .grand{font-weight:700; font-size:18px; margin-top:4px; padding-top:8px; border-top:1px solid var(--line);}
+
+  button.submit{margin-top:20px; width:100%; padding:13px; border:none; border-radius:3px; background:var(--rust); color:#FBF6EA; font:inherit; font-weight:600; font-size:15px; cursor:pointer;}
+
+  section.preview{margin-top:44px;}
+  section.preview h2, section.log h2{font-size:12px; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); font-weight:600; margin:0 0 14px; border-bottom:1px solid var(--line); padding-bottom:8px;}
+  .invoice-sheet{background:var(--paper-dark); border:1px solid var(--line); border-radius:3px; padding:22px; display:none;}
+  .invoice-sheet.show{display:block;}
+  .invoice-sheet .head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;}
+  .invoice-sheet .head h3{margin:0; font-size:20px;}
+  .invoice-sheet .num{font-size:13px; color:var(--ink-soft);}
+  .invoice-sheet table{width:100%; border-collapse:collapse; margin:14px 0;}
+  .invoice-sheet th{text-align:left; font-size:11px; text-transform:uppercase; color:var(--ink-soft); border-bottom:1px solid var(--line); padding-bottom:6px;}
+  .invoice-sheet td{padding:6px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .invoice-sheet .grand{display:flex; justify-content:space-between; font-weight:700; font-size:18px; margin-top:8px;}
+  .print-btn{margin-top:16px; background:var(--slate); color:#F3EEDF; border:none; padding:10px 16px; border-radius:3px; font:inherit; font-size:14px; cursor:pointer;}
+
+  section.log{margin-top:44px;}
+  .stat{background:var(--paper-dark); border:1px solid var(--line); border-radius:3px; padding:14px 16px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;}
+  .stat .num{font-size:22px; font-weight:800; font-family:'League Spartan',sans-serif;}
+  .inv{border:1px solid var(--line); border-radius:3px; padding:12px 14px; margin-bottom:8px; background:var(--paper-dark); display:flex; justify-content:space-between; align-items:center; font-size:14px;}
+  .inv .who{font-weight:600;}
+  .inv .amt{font-weight:700; color:var(--moss);}
+  .empty{color:var(--ink-soft); font-size:14px; font-style:italic;}
+  footer{margin-top:50px; font-size:13px; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:16px; padding-bottom:env(safe-area-inset-bottom,0px);}
+
+  @media print{
+    header.hero, .ticket, section.log, footer, .print-btn{display:none !important;}
+    body{background:#fff;}
+    .invoice-sheet{border:none; padding:0;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="inner">
+    <p class="brand">QUICK FIX STUDIOS</p>
+    <h1>Quotes &amp; invoices,<br>on the spot.</h1>
+    <p class="lede">Build a job total, hand the client a clean invoice, and keep a running tally of what's come in.</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="ticket">
+    <h2>New quote / invoice</h2>
+    <div class="row">
+      <div>
+        <label for="client">Client name</label>
+        <input id="client" placeholder="Client name">
+      </div>
+      <div>
+        <label for="idate">Date</label>
+        <input id="idate" type="date">
+      </div>
+    </div>
+
+    <table class="items" id="itemsTable">
+      <thead><tr><th>Service</th><th>Qty/hrs</th><th>Rate ($)</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <button type="button" class="add-row" id="addRow">+ Add line item</button>
+
+    <div class="row" style="margin-top:16px;">
+      <div>
+        <label for="fee">Flat fee / callout ($, optional)</label>
+        <input id="fee" type="number" min="0" step="0.01" placeholder="0.00">
+      </div>
+      <div>
+        <label for="tax">Tax rate (%, optional)</label>
+        <input id="tax" type="number" min="0" step="0.1" placeholder="0">
+      </div>
+    </div>
+
+    <div class="totals">
+      <div class="line"><span>Line items</span><span id="sumItems">$0.00</span></div>
+      <div class="line"><span>Flat fee</span><span id="sumFee">$0.00</span></div>
+      <div class="line"><span>Tax</span><span id="sumTax">$0.00</span></div>
+      <div class="line grand"><span>Total</span><span id="sumTotal">$0.00</span></div>
+    </div>
+
+    <button class="submit" id="genBtn">Generate invoice</button>
+  </div>
+
+  <section class="preview">
+    <h2>Invoice preview</h2>
+    <div class="invoice-sheet" id="sheet">
+      <div class="head">
+        <div>
+          <h3>Quick Fix Studios, LLC</h3>
+          <div class="num">Concord, NC &middot; 814-989-0858 &middot; rockalone71992@gmail.com</div>
+        </div>
+        <div class="num" id="sheetMeta"></div>
+      </div>
+      <div class="num" style="margin-bottom:10px;">Billed to: <span id="sheetClient"></span></div>
+      <table>
+        <thead><tr><th>Service</th><th>Qty/hrs</th><th>Rate</th><th style="text-align:right;">Amount</th></tr></thead>
+        <tbody id="sheetItems"></tbody>
+      </table>
+      <div id="sheetExtras"></div>
+      <div class="grand"><span>Total due</span><span id="sheetTotal"></span></div>
+      <button class="print-btn" id="printBtn">Print / save as PDF</button>
+    </div>
+  </section>
+
+  <section class="log">
+    <h2>Income tracker <span style="font-weight:400; text-transform:none; letter-spacing:0;">(saved on this device)</span></h2>
+    <div class="stat"><span>Total invoiced</span><span class="num" id="statTotal">$0.00</span></div>
+    <div id="invLog"></div>
+  </section>
+
+  <footer>Quick Fix Studios, LLC &middot; Concord, NC &middot; 814-989-0858 &middot; rockalone71992@gmail.com</footer>
+</div>
+
+<script>
+(function(){
+  var KEY = 'qfs_invoices';
+  var tbody = document.querySelector('#itemsTable tbody');
+
+  function addRow(service, qty, rate){
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><input class="svc" placeholder="e.g. Dog walking" value="'+(service||'')+'"></td>' +
+      '<td class="qty"><input class="qty-in" type="number" min="0" step="0.5" value="'+(qty!=null?qty:1)+'"></td>' +
+      '<td class="rate"><input class="rate-in" type="number" min="0" step="0.01" value="'+(rate!=null?rate:'')+'"></td>' +
+      '<td class="rm"><button type="button" class="rm-btn">&times;</button></td>';
+    tbody.appendChild(tr);
+    tr.querySelectorAll('input').forEach(function(inp){ inp.addEventListener('input', calc); });
+    tr.querySelector('.rm-btn').addEventListener('click', function(){ tr.remove(); calc(); });
+  }
+  document.getElementById('addRow').addEventListener('click', function(){ addRow(); });
+
+  function money(n){ return '$' + (Math.round(n*100)/100).toFixed(2); }
+
+  function getItems(){
+    return Array.from(tbody.querySelectorAll('tr')).map(function(tr){
+      var svc = tr.querySelector('.svc').value.trim();
+      var qty = parseFloat(tr.querySelector('.qty-in').value) || 0;
+      var rate = parseFloat(tr.querySelector('.rate-in').value) || 0;
+      return {svc: svc, qty: qty, rate: rate, amount: qty*rate};
+    }).filter(function(i){ return i.svc || i.qty || i.rate; });
+  }
+
+  function calc(){
+    var items = getItems();
+    var itemsSum = items.reduce(function(s,i){ return s + i.amount; }, 0);
+    var fee = parseFloat(document.getElementById('fee').value) || 0;
+    var taxPct = parseFloat(document.getElementById('tax').value) || 0;
+    var taxAmt = (itemsSum + fee) * (taxPct/100);
+    document.getElementById('sumItems').textContent = money(itemsSum);
+    document.getElementById('sumFee').textContent = money(fee);
+    document.getElementById('sumTax').textContent = money(taxAmt);
+    document.getElementById('sumTotal').textContent = money(itemsSum + fee + taxAmt);
+    return {items: items, itemsSum: itemsSum, fee: fee, taxAmt: taxAmt, total: itemsSum+fee+taxAmt};
+  }
+
+  function loadInvoices(){ try{ var r = localStorage.getItem(KEY); return r ? JSON.parse(r) : []; }catch(e){ return []; } }
+  function saveInvoices(list){ try{ localStorage.setItem(KEY, JSON.stringify(list)); }catch(e){} }
+
+  function renderLog(){
+    var list = loadInvoices();
+    var total = list.reduce(function(s,i){ return s + i.total; }, 0);
+    document.getElementById('statTotal').textContent = money(total);
+    var log = document.getElementById('invLog');
+    log.innerHTML = '';
+    if(list.length === 0){ log.innerHTML = '<p class="empty">No invoices generated yet.</p>'; return; }
+    list.slice().reverse().forEach(function(inv){
+      var div = document.createElement('div');
+      div.className = 'inv';
+      div.innerHTML = '<span class="who">'+ (inv.client||'Unnamed client') +'</span><span class="amt">'+ money(inv.total) +'</span>';
+      log.appendChild(div);
+    });
+  }
+
+  document.getElementById('genBtn').addEventListener('click', function(){
+    var c = calc();
+    if(c.items.length === 0){ return; }
+    var client = document.getElementById('client').value.trim() || 'Unnamed client';
+    var date = document.getElementById('idate').value;
+    var dateStr = date ? new Date(date+'T00:00:00').toLocaleDateString() : new Date().toLocaleDateString();
+
+    document.getElementById('sheetMeta').textContent = 'Invoice date: ' + dateStr;
+    document.getElementById('sheetClient').textContent = client;
+    var rows = document.getElementById('sheetItems');
+    rows.innerHTML = '';
+    c.items.forEach(function(i){
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>'+i.svc+'</td><td>'+i.qty+'</td><td>'+money(i.rate)+'</td><td style="text-align:right;">'+money(i.amount)+'</td>';
+      rows.appendChild(tr);
+    });
+    var extras = document.getElementById('sheetExtras');
+    extras.innerHTML = '';
+    if(c.fee > 0){ extras.innerHTML += '<div class="num" style="text-align:right; margin:4px 0;">Flat fee: '+money(c.fee)+'</div>'; }
+    if(c.taxAmt > 0){ extras.innerHTML += '<div class="num" style="text-align:right; margin:4px 0;">Tax: '+money(c.taxAmt)+'</div>'; }
+    document.getElementById('sheetTotal').textContent = money(c.total);
+    document.getElementById('sheet').classList.add('show');
+    document.getElementById('sheet').scrollIntoView({behavior:'smooth', block:'start'});
+
+    var list = loadInvoices();
+    list.push({id: Date.now(), client: client, date: date, total: c.total});
+    saveInvoices(list);
+    renderLog();
+  });
+
+  document.getElementById('printBtn').addEventListener('click', function(){ window.print(); });
+
+  addRow();
+  renderLog();
+  calc();
+})();
+</script>
+</body>
+</html
